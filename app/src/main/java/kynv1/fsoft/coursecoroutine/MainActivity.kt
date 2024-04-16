@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kynv1.fsoft.coursecoroutine.databinding.ActivityMainBinding
 import kynv1.fsoft.coursecoroutine.untis.Logger
 
@@ -22,7 +23,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnStart.setOnClickListener {
-            //requestData()
             binding.processBar.visibility = View.VISIBLE
             requestDataWithSuspend()
         }
@@ -35,25 +35,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestData() {
-        Logger.lod("requestData: ${Thread.currentThread().name}")
-        Thread.sleep(2000L)
-        binding.processBar.visibility = View.GONE
-        isShowResult = true
-        binding.txtData.text = "data from server"
-    }
-
     private fun requestDataWithSuspend() {
-        val scope = CoroutineScope(Job() + Dispatchers.Main)
-        scope.launch {
-            Logger.lod("requestDataWithSuspend: ${Thread.currentThread().name}")
-            val startTime = System.currentTimeMillis()
-            delay(1000L)
-            val executeTime = System.currentTimeMillis()-startTime
-            Logger.lod("executeTime : $executeTime")
-            binding.processBar.visibility = View.GONE
+        val mainScope = CoroutineScope(Dispatchers.Main)
+        mainScope.launch {
+            Logger.lod("main scope with thread : ${Thread.currentThread().name}")
+            withContext(Dispatchers.IO){
+                Logger.lod("main withContext with thread : ${Thread.currentThread().name}")
+                delay(6000L)
+                Logger.lod("nguyen anh ky ")
+            }
+            Logger.lod("after  withContext thread : ${Thread.currentThread().name}")
             isShowResult = true
+            binding.processBar.visibility = View.GONE
             binding.txtData.text = "data from server"
         }
+
+//        val ioScope = CoroutineScope(Dispatchers.IO)
+//        ioScope.launch {
+//            Logger.lod("IO scope with thread : ${Thread.currentThread().name}")
+//        }
+//
+//        val defaultScope = CoroutineScope(Dispatchers.Default)
+//        defaultScope.launch{
+//            Logger.lod("Default scope with thread : ${Thread.currentThread().name}")
+//        }
     }
 }
